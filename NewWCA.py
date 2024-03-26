@@ -3,6 +3,7 @@ The goals of this program are to automate the creation of
 charts that show production numbers and build a slideshow
 with titles of equipment along with operator stats.
 """
+#**Due to the nature of confidential information, certain elements will be redacted
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 import types
@@ -17,159 +18,125 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
 warnings.simplefilter("ignore")
-
+#imports
 #https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html tutorials
 def main():
-    
+    #function that basically wraps all of the code
     def wrap_labels(ax, width, break_long_words=False):
+        #function for wrapping the length of the press names
         labels = []
-        
-        for label in ax.get_xticklabels():
-            
+        for label in ax.get_xticklabels():   
             text = label.get_text()
             labels.append(textwrap.fill(text, width=width,
-                      break_long_words=break_long_words))
-            
+                      break_long_words=break_long_words))  
         ax.set_xticklabels(labels, rotation=0)
-        
+    #setup lists    
     stats = []
     stats2 = []
     statlist = []
     df = []
-    
+    #reads in our annual data information, this is stored in a few text files
     pddep = ''
-    masterpath = 'M:/Schedule/KPI/Press Reports/'
-    deps = open(r'M:\Schedule\KPI\Press Reports\New WCA/deps.txt','r')
+    masterpath = '**Redacted'
+    deps = open(r'**Redacted','r')
     deps = deps.read()
     deps = deps.replace('\n','').split(',')
-    opps = open(r'M:\Schedule\KPI\Press Reports\New WCA/opps.txt','r')
+    opps = open(r'**Redacted','r')
     opps = opps.read()
     opps = opps.replace('\n','').split('!')
-    stats = open(r'M:\Schedule\KPI\Press Reports\New WCA/Averages.txt','r')
+    stats = open(r'**Redacted','r')
     stats = stats.read()
     stats = stats.replace('\n','').split(',')
-    
+    #reading in our information and recoding some values a bit
     for i in stats:
-        
         item = i.split('!')
         stats2.append(item)
-
     stats = stats2
-    
     for i in stats:
-
         i[2] = int(i[2])
         i[3] = int(i[3])
         i[4] = int(i[4])
         i[5] = int(i[5])
         
-    while True:
-        
+    while True:#get user input for what report they ran from our ERP system
         month = input('Month:')
         day = input('Day:')
         year = input('Year:')
         path = masterpath+year+'/'+month+'-'+day+'-'+year+'.xlsx'
-        exist = os.path.exists(path)
-                
+        exist = os.path.exists(path)    
         if exist == True:
             break
-
         else:        
             print('That is not a valid file.')
             time.sleep(1)
-
-
+    #create our workbook
     wb = load_workbook(path)
     ws = wb.active
-
+    #per operator request
     for i in range(1,ws.max_row+1):
-        
         cell = ws.cell(row=i,column=1)
-        
-        if cell.value == 'Cletus Lee Landsteiner':
-            cell.value = 'Lee Landsteiner'
+        if cell.value == '**Redacted':
+            cell.value = '**Redacted'
 
-    #recodes press names
+    #recodes press names in worksheet
     for i in range(1,ws.max_row+1):
-        
         cell = ws.cell(row=i,column=2)
-
-        if cell.value == 'Sanden 07 992-18" FixedSize':
-            cell.value = 'Sanden 7'
-                        
-        elif cell.value == 'Sanden 03 893-27" 1200' or cell.value == 'Sanden 04  910-27" 1200':
-            cell.value = 'Sanden 3&4'
-                        
-        elif cell.value == 'Apollo 07':
-            cell.value = 'Apollo 7'
-                        
-        elif cell.value == 'Apollo 04 - Navitor' or cell.value == 'Apollo 04':
-            cell.value = 'Apollo 4'
-                        
-        elif cell.value == 'Webcom 16' or cell.value == 'Webcom 17' or cell.value == 'Webcom 13':
-            cell.value = 'Webcom 16&17'
-
-    for i in range(1,ws.max_row+1):
-        
+        if cell.value == '**Redacted':
+            cell.value = '**Redacted'             
+        elif cell.value == '**Redacted' or cell.value == '**Redacted':
+            cell.value = '**Redacted'             
+        elif cell.value == '**Redacted':
+            cell.value = '**Redacted'                        
+        elif cell.value == '**Redacted' or cell.value == '**Redacted':
+            cell.value = '**Redacted'                        
+        elif cell.value == '**Redacted' or cell.value == '**Redacted' or cell.value == '**Redacted':
+            cell.value = '**Redacted'
+    #this is basically all the code to read through every cell and determine
+    #what data should be extracted from the worksheet
+    #it also figures out whether or not there are multiple operators on a
+    #given press
+    for i in range(1,ws.max_row+1):        
         statsfound = 0        
         cell = ws.cell(row=i,column=2)
-
         if cell.value in deps:
             currentdep = cell.value
-
             for j in range(i,ws.max_row+1):
-
                 cell = ws.cell(row=j,column=1)
-
                 if statsfound == 1:
                     break
-
                 elif cell.value in opps:
                     currentopp = cell.value
-
-                    for k in range(j,ws.max_row+1):
-                        
+                    for k in range(j,ws.max_row+1):                        
                         cell = ws.cell(row=k,column=1)      
-
                         if cell.value in opps and cell.value != currentopp:
-                            break
-                        
+                            break                        
                         elif cell.value == 'Employee Total':
                             hours = ws.cell(row=k,column=2)
                             gross = ws.cell(row=k,column=3)
                             net = ws.cell(row=k,column=4)
                             waste = ws.cell(row=k,column=5)
                             stats.insert(100,[currentdep,currentopp,hours.value,gross.value,net.value,waste.value])
-
                         elif cell.value == 'Work Center Total':
-                            statsfound = 1
-                            
+                            statsfound = 1                            
                         if statsfound == 1:
                             break
 
 
-    dir1 = 'M:/Schedule/KPI/Press Reports/New WCA/Hour'
-    dir2 = 'M:/Schedule/KPI/Press Reports/New WCA/Waste'
-    
+    dir1 = '**Redacted'
+    dir2 = '**Redacted'
+    #clean out the previous day charts
     for i in os.listdir(dir1):
-        
         os.remove(os.path.join(dir1,i))
-
     for i in os.listdir(dir2):
-        
         os.remove(os.path.join(dir2,i))
-        
+    #for every department, get the needed data and build the chart    
     for department in deps:
-
         goodfeet = []
         goodfeetperhour = []
         waste = []
         opplist = []
-
-        plot = False
-            
+        plot = False  
         for stat in stats:
-            
             if stat[0] == department:
                 goodfeet.insert(100,stat[4])
                 waste.insert(100,stat[5])
@@ -182,6 +149,8 @@ def main():
             plot = True
                 
         if plot == True:
+            #this is encapsulates all the plotting for this project
+            #there are two types of charts created per press
             arange = np.arange(n)
             fig, ax = plt.subplots(figsize=(7,7))
 
@@ -208,7 +177,6 @@ def main():
             
             plt.savefig(r'M:\Schedule\KPI\Press Reports\New WCA\Waste/'+department+'.png',)  
 
-            ########
             fig, ax = plt.subplots(figsize=(7,7))
 
             bar_width = .5
@@ -230,10 +198,11 @@ def main():
             plt.grid(axis = 'y',color = 'gray')
             plt.title('Good Feet Per Hour',loc='center',fontsize = 20)
             
-            plt.savefig(r'M:\Schedule\KPI\Press Reports\New WCA\Hour/'+department+'.png',)
+            plt.savefig(r'**Redacted',)
 
-    ##
-    prs = Presentation(r'M:\Schedule\KPI\Press Reports\New WCA/MasterFile.pptx')
+    #there are some settings that pptx cannot change so we start from a template
+    #that I made whenever a user initiates the program
+    prs = Presentation(r'**Redacted')
     layout = prs.slide_layouts[5]
     title = prs.slide_layouts[0]
     slide = prs.slides.add_slide(title)
@@ -244,13 +213,14 @@ def main():
     sub = slide.placeholders[1]
     sub = sub.element
     sub.getparent().remove(sub)
-    
+    #if there are charts, put em in the slideshow
     for department in deps:
-        hours = 'M:/Schedule/KPI/Press Reports/New WCA/Hour/'+department+'.png'
-        waste = 'M:/Schedule/KPI/Press Reports/New WCA/Waste/'+department+'.png'
+        hours = **Redacted
+        waste = **Redacted
         exist1 = os.path.exists(hours)
         
-        if exist1 == True:  
+        if exist1 == True:
+            #creates a new sheet if there are charts
             slide = prs.slides.add_slide(layout)
             title = slide.shapes.title
             title.text = department
@@ -269,9 +239,9 @@ def main():
             left = Inches(6.75)
             top = Inches(1.5)
             pic2 = slide.shapes.add_picture(waste,left,top,Inches(5))            
-
-    prs.save(r'M:\Schedule\KPI\Press Reports\WCA Presentation.pptx')
-    os.startfile(r'M:\Schedule\KPI\Press Reports\WCA Presentation.pptx')        
+    #save and start
+    prs.save(r'**Redacted')
+    os.startfile(r'**Redacted')        
     print('Program completed...')
     time.sleep(1)
     
